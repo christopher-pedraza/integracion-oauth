@@ -6,8 +6,6 @@ const app = express();
 
 app.use(cors());
 
-app.use(express.static("dist"));
-
 app.get("/login", (req, res) => {
     const authUrl =
         "http://localhost:3001/authorize?response_type=code&client_id=client1&redirect_uri=http://localhost:3000/callback";
@@ -31,7 +29,7 @@ app.get("/callback", (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.WEBSITES_PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Backend Server listening on port ${PORT}`);
 });
