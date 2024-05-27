@@ -16,8 +16,6 @@ const { tokens } = require("./models/tokens");
 const cors = require("cors");
 const session = require("express-session");
 
-app.use(express.static("dist"));
-
 // Configuración del servidor
 const app = express();
 app.use(cors());
