@@ -1,4 +1,0 @@
-{
-    "appService.defaultWebAppToDeploy": "undefined/subscriptions/9bace929-56dc-406c-9112-78b8e243083f/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/tarea3-integracion-oauth",
-    "appService.deploySubpath": "."
-}

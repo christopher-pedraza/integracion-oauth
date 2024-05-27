@@ -3,11 +3,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const oauth2orize = require("oauth2orize");
 const passport = require("passport");
+const RFIDStrategy = require("passport-custom").Strategy;
+
 const BasicStrategy = require("passport-http").BasicStrategy;
 const ClientPasswordStrategy =
     require("passport-oauth2-client-password").Strategy;
 const bcrypt = require("bcryptjs");
-const { users } = require("./models/users");
+const User = require("./models/user");
+//const { users } = require("./models/users");
 const { clients } = require("./models/clients");
 const { tokens } = require("./models/tokens");
 const cors = require("cors");
@@ -16,13 +19,15 @@ const session = require("express-session");
 // Configuración del servidor
 const app = express();
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("dist"));
 app.use(
     session({
-        secret: "keyboard cat", // Utiliza una clave secreta para firmar la cookie de sesión
-        resave: false, // Evita guardar la sesión si no se modificó
-        saveUninitialized: true, // Guarda la sesión incluso si no se ha inicializado
-        cookie: { secure: false }, // Para desarrollo, en producción deberías considerar usar 'true' para HTTPS
+        secret: "your-strong-secret-key",
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false },
     })
 );
 
@@ -36,15 +41,42 @@ server.deserializeClient((id, done) => {
     return done(null, client);
 });
 
+// Estrategia de RFID
+passport.use(
+    "rfid",
+    new RFIDStrategy(async (req, done) => {
+        try {
+            console.log("Body received:", req.body); // Debug log
+            const rfid = req.body.rfid;
+            if (!rfid) {
+                console.log("RFID is missing"); // Debug log
+                return done(null, false, { message: "RFID is required" });
+            }
+            const user = await User.findOne({ rfid });
+            if (!user) {
+                console.log("RFID not recognized"); // Debug log
+                return done(null, false, { message: "RFID not recognized" });
+            }
+            return done(null, user);
+        } catch (err) {
+            console.log("Error:", err); // Debug log
+            return done(err);
+        }
+    })
+);
+
 // Estrategia de contraseña
 passport.use(
-    new BasicStrategy((username, password, done) => {
-        console.log(users);
-        const user = users.find((user) => user.username === username);
-        /*if (!user || !bcrypt.compareSync(password, user.password)) {
-      return done(null, false);
-    } */
-        return done(null, user);
+    new BasicStrategy(async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username });
+            if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
+                return done(null, false);
+            }
+            return done(null, user);
+        } catch (err) {
+            return done(err);
+        }
     })
 );
 
@@ -131,6 +163,16 @@ app.post(
     server.errorHandler()
 );
 
-app.listen(3000, () => {
-    console.log("OAuth2 server listening on port 3000");
+app.post(
+    "/login-rfid",
+    passport.authenticate("rfid", { session: false }),
+    (req, res) => {
+        // Generar token o responder con los datos del usuario
+        res.json({ message: "Login successful", user: req.user });
+    }
+);
+
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+    console.log(`OAuth Server listening on port ${port}`);
 });

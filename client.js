@@ -3,25 +3,25 @@ const express = require("express");
 const request = require("request");
 const cors = require("cors");
 const app = express();
-const port = 3001;
 
 app.use(cors());
 
+app.use(express.static("dist"));
+
 app.get("/login", (req, res) => {
     const authUrl =
-        "https://tarea3-integracion-oauth-aux.azurewebsites.net/authorize?response_type=code&client_id=client1&redirect_uri=https://tarea3-integracion-oauth.azurewebsites.net/callback";
+        "http://localhost:3001/authorize?response_type=code&client_id=client1&redirect_uri=http://localhost:3000/callback";
     res.redirect(authUrl);
 });
 
 app.get("/callback", (req, res) => {
     const authCode = req.query.code;
-    const tokenUrl =
-        "https://tarea3-integracion-oauth-aux.azurewebsites.net/token";
+    const tokenUrl = "http://localhost:3001/token";
     const params = {
         code: authCode,
         client_id: "client1",
         client_secret: "secret1",
-        redirect_uri: "https://tarea3-integracion-oauth.azurewebsites.net/callback",
+        redirect_uri: "http://localhost:3000/callback",
         grant_type: "authorization_code",
     };
 
@@ -31,6 +31,7 @@ app.get("/callback", (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Backend app listening at http://localhost:${port}`);
+const PORT = process.env.WEBSITES_PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Backend Server listening on port ${PORT}`);
 });
