@@ -3,7 +3,9 @@ const clients = [
         id: "1",
         clientId: "client1",
         clientSecret: "secret1",
-        redirectUris: ["http://localhost:3001/callback"],
+        redirectUris: [
+            "https://tarea3-integracion-oauth.azurewebsites.net/callback",
+        ],
     },
 ];
 

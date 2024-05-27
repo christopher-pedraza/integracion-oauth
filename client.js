@@ -9,18 +9,19 @@ app.use(cors());
 
 app.get("/login", (req, res) => {
     const authUrl =
-        "http://localhost:3000/authorize?response_type=code&client_id=client1&redirect_uri=http://localhost:3001/callback";
+        "https://tarea3-integracion-oauth-aux.azurewebsites.net/authorize?response_type=code&client_id=client1&redirect_uri=https://tarea3-integracion-oauth.azurewebsites.net/callback";
     res.redirect(authUrl);
 });
 
 app.get("/callback", (req, res) => {
     const authCode = req.query.code;
-    const tokenUrl = "http://localhost:3000/token";
+    const tokenUrl =
+        "https://tarea3-integracion-oauth-aux.azurewebsites.net/token";
     const params = {
         code: authCode,
         client_id: "client1",
         client_secret: "secret1",
-        redirect_uri: "http://localhost:3001/callback",
+        redirect_uri: "https://tarea3-integracion-oauth.azurewebsites.net/callback",
         grant_type: "authorization_code",
     };
 

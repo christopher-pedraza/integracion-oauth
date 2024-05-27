@@ -4,9 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "dev": "nodemon index.js",
-        "client": "nodemon client.js",
-        "start": "npm run dev && npm run client"
+        "dev": "nodemon client.js",
+        "start": "nodemon client.js"
     },
     "keywords": [],
     "author": "",
